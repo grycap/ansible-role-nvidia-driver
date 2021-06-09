@@ -25,8 +25,10 @@
         - "kernel-debug-devel"
       state: latest
     environment: "{{proxy_env if proxy_env is defined else {}}}"
+    register: kernel_updated
   - name: reboot to pick up the new kernel
     reboot:
+    when: kernel_updated is changed
 
 - name: add epel repo
   become: true

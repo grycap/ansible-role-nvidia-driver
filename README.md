@@ -14,10 +14,10 @@ If you attempt to run Ansible on the same node where you are installing the driv
 
 ## Installing
 
-This role can be installed using [Ansible Galaxy](https://galaxy.ansible.com/nvidia/nvidia_driver):
+This role can be installed using [Ansible Galaxy](https://galaxy.ansible.com/grycap/nvidia_driver):
 
 ```
-$ ansible-galaxy install nvidia.nvidia_driver
+$ ansible-galaxy install grycap.nvidia_driver
 ```
 
 ## Role variables
@@ -74,4 +74,5 @@ Currently, this role supports the following Linux distributions:
 * Ubuntu 18.04 LTS
 * Ubuntu 20.04 LTS
 * CentOS 7
+* CentOS 8
 * Red Hat Enterprise Linux 7
