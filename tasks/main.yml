@@ -5,6 +5,23 @@
     state: absent
   ignore_errors: true
 
+- set_fact:
+    regenerate_kernel_command: "update-initramfs -u"
+  when: ansible_distribution == 'Ubuntu'
+
+- set_fact:
+    regenerate_kernel_command: "dracut --force"
+  when: ansible_os_family == 'RedHat'
+
+- name: set nouveau to the module blacklist
+  copy:
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    content: |
+      blacklist nouveau
+      options nouveau modeset=0
+  notify:
+    - regenerate kernel
+
 - name: ubuntu install tasks (canonical repos)
   include_tasks: install-ubuntu.yml
   when: ansible_distribution == 'Ubuntu' and (not nvidia_driver_ubuntu_install_from_cuda_repo)
