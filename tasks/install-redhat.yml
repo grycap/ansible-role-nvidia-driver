@@ -54,9 +54,9 @@
 
 - name: install driver packages
   yum:
-    name: "{{ nvidia_driver_package_version | ternary(nvidia_driver_package_name+'-'+nvidia_driver_package_version, nvidia_driver_package_name) }}"
-    state: "{{ nvidia_driver_package_state }}"
-    autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+    name:
+      - "{{ nvidia_driver_package_version | ternary(nvidia_driver_package_name+'-'+nvidia_driver_package_version, nvidia_driver_package_name) }}"
+      - "{{ nvidia_driver_package_version | ternary('nvidia-persistenced-'+nvidia_driver_package_version, 'nvidia-persistenced') }}"
   register: install_driver
   environment: "{{proxy_env if proxy_env is defined else {}}}"
 

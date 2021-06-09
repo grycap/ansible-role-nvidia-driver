@@ -19,8 +19,13 @@
     content: |
       blacklist nouveau
       options nouveau modeset=0
-  notify:
-    - regenerate kernel
+  register: nouveau_blacklist
+
+- command: update-initramfs -u
+  when: nouveau_blacklist is changed and ansible_distribution == 'Ubuntu'
+
+- command: "dracut --force"
+  when: nouveau_blacklist is changed and ansible_os_family == 'RedHat'
 
 - name: ubuntu install tasks (canonical repos)
   include_tasks: install-ubuntu.yml
@@ -56,7 +61,6 @@
   systemd:
     name: nvidia-persistenced
     enabled: yes
-  when: nvidia_driver_package_state != 'absent'
 
 - name: set module parameters
   template:
