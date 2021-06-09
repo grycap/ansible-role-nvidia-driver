@@ -57,6 +57,8 @@
     name:
       - "{{ nvidia_driver_package_version | ternary(nvidia_driver_package_name+'-'+nvidia_driver_package_version, nvidia_driver_package_name) }}"
       - "{{ nvidia_driver_package_version | ternary('nvidia-persistenced-'+nvidia_driver_package_version, 'nvidia-persistenced') }}"
+      - "{{ nvidia_driver_package_version | ternary('nvidia-driver-devel-'+nvidia_driver_package_version, 'nvidia-driver-devel') }}"
+      - "{{ nvidia_driver_package_version | ternary('nvidia-driver-NVML-'+nvidia_driver_package_version, 'nvidia-driver-NVML') }}"
   register: install_driver
   environment: "{{proxy_env if proxy_env is defined else {}}}"
 
