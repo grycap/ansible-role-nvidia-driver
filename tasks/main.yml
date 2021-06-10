@@ -1,73 +1,11 @@
 ---
-- name: unload nouveau
-  modprobe:
-    name: nouveau
-    state: absent
-  ignore_errors: true
+- name: Test nvidia-smi command
+  command: nvidia-smi
+  register: nvidia_installed
+  ignore_errors: yes
+  change_when: false
 
-- set_fact:
-    regenerate_kernel_command: "update-initramfs -u"
-  when: ansible_distribution == 'Ubuntu'
+- name: Install drivers
+  include_tasks: install.yml
+  when: nvidia_installed.rc != 0
 
-- set_fact:
-    regenerate_kernel_command: "dracut --force"
-  when: ansible_os_family == 'RedHat'
-
-- name: set nouveau to the module blacklist
-  copy:
-    dest: /etc/modprobe.d/blacklist-nouveau.conf
-    content: |
-      blacklist nouveau
-      options nouveau modeset=0
-  register: nouveau_blacklist
-
-- command: update-initramfs -u
-  when: nouveau_blacklist is changed and ansible_distribution == 'Ubuntu'
-
-- command: "dracut --force"
-  when: nouveau_blacklist is changed and ansible_os_family == 'RedHat'
-
-- name: ubuntu install tasks (canonical repos)
-  include_tasks: install-ubuntu.yml
-  when: ansible_distribution == 'Ubuntu' and (not nvidia_driver_ubuntu_install_from_cuda_repo)
-
-- name: ubuntu install tasks (CUDA repo)
-  include_tasks: install-ubuntu-cuda-repo.yml
-  when: ansible_distribution == 'Ubuntu' and nvidia_driver_ubuntu_install_from_cuda_repo
-
-- name: redhat family install tasks
-  include_tasks: install-redhat.yml
-  when: ansible_os_family == 'RedHat'
-
-- name: create persistenced override dir
-  file:
-    path: /etc/systemd/system/nvidia-persistenced.service.d/
-    state: directory
-    recurse: yes
-
-- name: configure persistenced service to turn on persistence mode
-  copy:
-    src: nvidia-persistenced-override.conf
-    dest: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
-  when: nvidia_driver_persistence_mode_on
-
-- name: remove persistenced service override
-  file:
-    path: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
-    state: absent
-  when: not nvidia_driver_persistence_mode_on
-
-- name: enable persistenced
-  systemd:
-    name: nvidia-persistenced
-    enabled: yes
-
-- name: set module parameters
-  template:
-    src: nvidia.conf.j2
-    dest: "{{ nvidia_driver_module_file }}"
-    mode: '0644'
-
-- name: reboot after driver install
-  reboot:
-  when: install_driver.changed and not nvidia_driver_skip_reboot
