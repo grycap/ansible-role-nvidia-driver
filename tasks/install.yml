@@ -20,6 +20,7 @@
       blacklist nouveau
       options nouveau modeset=0
   register: nouveau_blacklist
+  ignore_errors: true
 
 - command: update-initramfs -u
   when: nouveau_blacklist is changed and ansible_distribution == 'Ubuntu'
