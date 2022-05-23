@@ -29,7 +29,8 @@ nvidia_driver_ubuntu_packages:
 - "nvidia-kernel-source-{{ nvidia_driver_ubuntu_branch }}-server"
 
 # Installing with CUDA repositories
-nvidia_driver_ubuntu_cuda_repo_gpgkey_url: "https://developer.download.nvidia.com/compute/cuda/repos/{{ _ubuntu_repo_dir }}/7fa2af80.pub"
-nvidia_driver_ubuntu_cuda_repo_gpgkey_id: "7fa2af80"
-nvidia_driver_ubuntu_cuda_repo_baseurl: "http://developer.download.nvidia.com/compute/cuda/repos/{{ _ubuntu_repo_dir }}"
-nvidia_driver_ubuntu_cuda_package: "cuda-drivers"
+old_nvidia_driver_ubuntu_cuda_repo_gpgkey_id: "7fa2af80"
+nvidia_driver_ubuntu_cuda_repo_baseurl: "https://developer.download.nvidia.com/compute/cuda/repos/{{ _ubuntu_repo_dir }}"
+nvidia_driver_ubuntu_cuda_keyring_package: "cuda-keyring_1.0-1_all.deb"
+nvidia_driver_ubuntu_cuda_keyring_url: "{{ nvidia_driver_ubuntu_cuda_repo_baseurl }}/{{ nvidia_driver_ubuntu_cuda_keyring_package }}"
+nvidia_driver_ubuntu_cuda_package: "cuda-drivers-{{ nvidia_driver_ubuntu_branch }}"
