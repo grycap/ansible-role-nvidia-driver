@@ -36,9 +36,17 @@
     name: epel-release
     state: latest
   environment: "{{proxy_env if proxy_env is defined else {}}}"
+  when: nvidia_driver_add_repos | bool
 
 - name: install dependencies
-  yum: name=dkms
+  yum:
+    name: dkms
+    state: present
+
+- name: blacklist nouveau
+  kernel_blacklist:
+    name: nouveau
+    state: present
 
 - name: add repo
   yum_repository:
@@ -47,18 +55,29 @@
     baseurl: "{{ nvidia_driver_rhel_cuda_repo_baseurl }}"
     gpgkey: "{{ nvidia_driver_rhel_cuda_repo_gpgkey }}"
   environment: "{{proxy_env if proxy_env is defined else {}}}"
+  when: nvidia_driver_add_repos | bool
 
-- set_fact:
-    nvidia_driver_package_name: "nvidia-driver"
-  when: ansible_distribution_major_version|int >= 8
-
-- name: install driver packages
+- name: install driver packages RHEL/CentOS 7 and older
   yum:
-    name:
-      - "{{ nvidia_driver_package_version | ternary(nvidia_driver_package_name+'-'+nvidia_driver_package_version, nvidia_driver_package_name) }}"
-      - "{{ nvidia_driver_package_version | ternary('nvidia-persistenced-'+nvidia_driver_package_version, 'nvidia-persistenced') }}"
-      - "{{ nvidia_driver_package_version | ternary('nvidia-driver-devel-'+nvidia_driver_package_version, 'nvidia-driver-devel') }}"
-      - "{{ nvidia_driver_package_version | ternary('nvidia-driver-NVML-'+nvidia_driver_package_version, 'nvidia-driver-NVML') }}"
-  register: install_driver
+    name: "{{ nvidia_driver_package_version | ternary('nvidia-driver-latest-dkms-'+nvidia_driver_package_version, 'nvidia-driver-branch-'+nvidia_driver_rhel_branch) }}"
+    state: "{{ nvidia_driver_package_state }}"
+    autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+  register: install_driver_rhel7
   environment: "{{proxy_env if proxy_env is defined else {}}}"
+  when: ansible_distribution_major_version < '8'
 
+- name: install driver packages RHEL/CentOS 8 and newer
+  dnf:
+    name: "{{ nvidia_driver_package_version | ternary('@nvidia-driver:'+nvidia_driver_package_version, '@nvidia-driver:'+nvidia_driver_rhel_branch+'-dkms') }}"
+    state: "{{ nvidia_driver_package_state }}"
+    autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+  register: install_driver_rhel8
+  environment: "{{proxy_env if proxy_env is defined else {}}}"
+  when: ansible_distribution_major_version > '7'
+
+- name: Set install_driver.changed var for RHEL 7/8
+  debug:
+      msg: Driver installed for RHEL
+  when: install_driver_rhel7.changed or install_driver_rhel8.changed
+  register: install_driver
+  changed_when: install_driver_rhel7.changed or install_driver_rhel8.changed

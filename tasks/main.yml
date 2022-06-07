@@ -7,5 +7,5 @@
 
 - name: Install drivers
   include_tasks: install.yml
-  when: nvidia_installed.rc != 0
+  when: nvidia_installed is failed
 
