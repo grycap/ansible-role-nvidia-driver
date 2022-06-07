@@ -17,10 +17,12 @@
 - name: Regenerate kernel Ubuntu
   command: update-initramfs -u
   when: nouveau_blacklist is changed and ansible_distribution == 'Ubuntu'
+  ignore_errors: true
 
 - name: Regenerate kernel RHEL/CentOS
   command: "dracut --force"
   when: nouveau_blacklist is changed and ansible_os_family == 'RedHat'
+  ignore_errors: true
 
 - name: ubuntu install tasks (canonical repos)
   include_tasks: install-ubuntu.yml
