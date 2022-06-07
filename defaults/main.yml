@@ -3,25 +3,29 @@ nvidia_driver_persistence_mode_on: yes
 nvidia_driver_skip_reboot: no
 nvidia_driver_module_file: /etc/modprobe.d/nvidia.conf
 nvidia_driver_module_params: ''
+nvidia_driver_add_repos: yes
+nvidia_driver_branch: "510"
 
 
 ##############################################################################
 # RedHat family                                                              #
 ##############################################################################
 nvidia_driver_rhel_cuda_repo_baseurl: "https://developer.download.nvidia.com/compute/cuda/repos/{{ _rhel_repo_dir }}/"
-nvidia_driver_rhel_cuda_repo_gpgkey: "https://developer.download.nvidia.com/compute/cuda/repos/{{ _rhel_repo_dir }}/7fa2af80.pub"
-nvidia_driver_package_name: "nvidia-driver-latest-dkms"
+nvidia_driver_rhel_cuda_repo_gpgkey: "https://developer.download.nvidia.com/compute/cuda/repos/{{ _rhel_repo_dir }}/D42D0685.pub"
+nvidia_driver_rhel_branch: "{{ nvidia_driver_branch }}"
 
 
 ##############################################################################
 # Ubuntu                                                                     #
 ##############################################################################
 
+# Driver branch to install with Ubuntu
+nvidia_driver_ubuntu_branch: "{{ nvidia_driver_branch }}"
+
 # Determine if we should install from CUDA repo instead of Canonical repos
 nvidia_driver_ubuntu_install_from_cuda_repo: no
 
 # Installing with Canonical repositories
-nvidia_driver_ubuntu_branch: "450"
 nvidia_driver_ubuntu_packages:
 - "nvidia-headless-{{ nvidia_driver_ubuntu_branch }}-server"
 - "nvidia-utils-{{ nvidia_driver_ubuntu_branch }}-server"
